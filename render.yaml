@@ -4,10 +4,10 @@ services:
     runtime: node
     plan: free
     buildCommand: |
-      cd client && npm install --include=dev && npm run build
+      cd client && npm install --include=dev && node node_modules/vite/bin/vite.js build
       cd ../server && npm install && node node_modules/prisma/build/index.js generate
     startCommand: |
-      cd server && node node_modules/prisma/build/index.js db push --skip-generate && node_modules/.bin/tsx src/index.ts
+      cd server && node node_modules/prisma/build/index.js db push --skip-generate && node node_modules/tsx/dist/cli.mjs src/index.ts
     envVars:
       - key: DATABASE_URL
         value: "file:./prod.db"
