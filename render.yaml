@@ -4,10 +4,10 @@ services:
     runtime: node
     plan: free
     buildCommand: |
-      cd client && npm install && npm run build
-      cd ../server && npm install && ./node_modules/.bin/prisma generate && npx tsc
+      cd client && npm install --include=dev && npm run build
+      cd ../server && npm install && node node_modules/prisma/build/index.js generate && npx tsc
     startCommand: |
-      cd server && ./node_modules/.bin/prisma db push --skip-generate && node dist/index.js
+      cd server && node node_modules/prisma/build/index.js db push --skip-generate && node dist/index.js
     envVars:
       - key: DATABASE_URL
         value: "file:./prod.db"
