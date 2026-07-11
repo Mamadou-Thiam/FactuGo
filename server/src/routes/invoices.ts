@@ -71,6 +71,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
           quantity: item.quantity,
           unitPrice: Number(item.unitPrice),
           discount: Number(item.discount),
+          imeiVendeur: item.imeiVendeur,
+          imeiAcheteur: item.imeiAcheteur,
           lineTotal: calculateItemTotal(Number(item.unitPrice), item.quantity, Number(item.discount)),
         })),
       };
@@ -123,6 +125,8 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
         quantity: item.quantity,
         unitPrice: Number(item.unitPrice),
         discount: Number(item.discount),
+        imeiVendeur: item.imeiVendeur,
+        imeiAcheteur: item.imeiAcheteur,
         lineTotal: calculateItemTotal(Number(item.unitPrice), item.quantity, Number(item.discount)),
       })),
     });
@@ -139,6 +143,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (!clientId || !items || items.length === 0) {
       res.status(400).json({ error: 'Client et articles requis' });
       return;
+    }
+
+    for (const item of items) {
+      if (!item.imeiVendeur || item.imeiVendeur.trim() === '') {
+        res.status(400).json({ error: 'IMEI du vendeur requis pour chaque article' });
+        return;
+      }
     }
 
     const number = await generateInvoiceNumber();
@@ -158,6 +169,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
             quantity: parseInt(item.quantity),
             unitPrice: parseFloat(item.unitPrice),
             discount: parseFloat(item.discount) || 0,
+            imeiVendeur: item.imeiVendeur || '',
+            imeiAcheteur: item.imeiAcheteur || null,
           })),
         },
       },
@@ -187,6 +200,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         quantity: item.quantity,
         unitPrice: Number(item.unitPrice),
         discount: Number(item.discount),
+        imeiVendeur: item.imeiVendeur,
+        imeiAcheteur: item.imeiAcheteur,
         lineTotal: calculateItemTotal(Number(item.unitPrice), item.quantity, Number(item.discount)),
       })),
     });
@@ -229,6 +244,8 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
             quantity: parseInt(item.quantity),
             unitPrice: parseFloat(item.unitPrice),
             discount: parseFloat(item.discount) || 0,
+            imeiVendeur: item.imeiVendeur || '',
+            imeiAcheteur: item.imeiAcheteur || null,
           })),
         },
       },
@@ -258,6 +275,8 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
         quantity: item.quantity,
         unitPrice: Number(item.unitPrice),
         discount: Number(item.discount),
+        imeiVendeur: item.imeiVendeur,
+        imeiAcheteur: item.imeiAcheteur,
         lineTotal: calculateItemTotal(Number(item.unitPrice), item.quantity, Number(item.discount)),
       })),
     });

@@ -22,6 +22,8 @@ interface InvoiceItem {
   quantity: number;
   unitPrice: number;
   discount: number;
+  imeiVendeur: string;
+  imeiAcheteur: string;
 }
 
 interface CreatedInvoice {
@@ -34,7 +36,7 @@ interface CreatedInvoice {
   status: string;
 }
 
-const emptyItem: InvoiceItem = { designation: '', quantity: 1, unitPrice: 0, discount: 0 };
+const emptyItem: InvoiceItem = { designation: '', quantity: 1, unitPrice: 0, discount: 0, imeiVendeur: '', imeiAcheteur: '' };
 
 const IPHONE_MODELS = [
   'iPhone 16 Pro Max',
@@ -153,6 +155,11 @@ export default function CreateInvoice() {
       return;
     }
 
+    if (items.some((item) => !item.imeiVendeur || item.imeiVendeur.trim() === '')) {
+      toast.error('IMEI du vendeur requis pour chaque article');
+      return;
+    }
+
     setLoading(true);
     try {
       let clientId = selectedClientId;
@@ -177,6 +184,8 @@ export default function CreateInvoice() {
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           discount: item.discount,
+          imeiVendeur: item.imeiVendeur,
+          imeiAcheteur: item.imeiAcheteur || null,
         })),
       };
 
@@ -503,6 +512,29 @@ export default function CreateInvoice() {
                       ✕
                     </button>
                   )}
+                </div>
+                {/* IMEI fields - full width below */}
+                <div className="sm:col-span-12 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    {index === 0 && <label className="block text-xs text-gray-500 mb-1">IMEI Vendeur *</label>}
+                    <input
+                      type="text"
+                      placeholder="IMEI vendeur *"
+                      value={item.imeiVendeur}
+                      onChange={(e) => updateItem(index, 'imeiVendeur', e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                    />
+                  </div>
+                  <div>
+                    {index === 0 && <label className="block text-xs text-gray-500 mb-1">IMEI Acheteur</label>}
+                    <input
+                      type="text"
+                      placeholder="IMEI acheteur (optionnel)"
+                      value={item.imeiAcheteur}
+                      onChange={(e) => updateItem(index, 'imeiAcheteur', e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                    />
+                  </div>
                 </div>
               </div>
             ))}

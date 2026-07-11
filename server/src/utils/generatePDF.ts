@@ -29,6 +29,8 @@ interface InvoiceItem {
   unitPrice: number;
   discount: number;
   lineTotal: number;
+  imeiVendeur: string;
+  imeiAcheteur: string | null;
 }
 
 interface InvoiceData {
@@ -173,6 +175,13 @@ export function generateInvoicePDF(invoice: InvoiceData, res: Response): void {
     doc.text(item.discount > 0 ? `-${item.discount}%` : '-', colX.discount, y + 5, { width: colX.total - colX.discount, align: 'right' });
     doc.font('Helvetica-Bold').text(`${formatNumber(item.lineTotal)} F`, colX.total, y + 5, { width: MARGIN + CONTENT_W - colX.total - 8, align: 'right' });
     y += 20;
+
+    // IMEI info below item
+    const imeiLine = item.imeiAcheteur
+      ? `IMEI Vendeur: ${item.imeiVendeur}  |  IMEI Acheteur: ${item.imeiAcheteur}`
+      : `IMEI Vendeur: ${item.imeiVendeur}`;
+    doc.fontSize(7).font('Helvetica').fillColor(GRAY).text(imeiLine, colX.desig + 8, y, { width: CONTENT_W - 16 });
+    y += 12;
   }
 
   // Table bottom line

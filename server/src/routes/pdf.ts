@@ -49,6 +49,8 @@ router.get('/:id/pdf', async (req: AuthRequest, res: Response) => {
         quantity: item.quantity,
         unitPrice: Number(item.unitPrice),
         discount: Number(item.discount),
+        imeiVendeur: item.imeiVendeur,
+        imeiAcheteur: item.imeiAcheteur,
         lineTotal: calculateItemTotal(Number(item.unitPrice), item.quantity, Number(item.discount)),
       })),
     };

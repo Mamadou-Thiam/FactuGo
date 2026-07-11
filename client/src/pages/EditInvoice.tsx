@@ -48,6 +48,8 @@ interface InvoiceItem {
   quantity: number;
   unitPrice: number;
   discount: number;
+  imeiVendeur: string;
+  imeiAcheteur: string;
 }
 
 interface InvoiceData {
@@ -102,6 +104,8 @@ export default function EditInvoice() {
           quantity: i.quantity,
           unitPrice: i.unitPrice,
           discount: i.discount,
+          imeiVendeur: i.imeiVendeur || '',
+          imeiAcheteur: i.imeiAcheteur || '',
         })));
         setClients(clientsRes.data);
       })
@@ -112,7 +116,7 @@ export default function EditInvoice() {
       .finally(() => setInitialLoading(false));
   }, [id, navigate]);
 
-  const addItem = () => setItems([...items, { designation: '', quantity: 1, unitPrice: 0, discount: 0 }]);
+  const addItem = () => setItems([...items, { designation: '', quantity: 1, unitPrice: 0, discount: 0, imeiVendeur: '', imeiAcheteur: '' }]);
 
   const removeItem = (index: number) => {
     if (items.length === 1) return;
@@ -154,6 +158,9 @@ export default function EditInvoice() {
     if (items.some((item) => !item.designation || item.quantity <= 0 || item.unitPrice <= 0)) {
       toast.error('Vérifiez les articles'); return;
     }
+    if (items.some((item) => !item.imeiVendeur || item.imeiVendeur.trim() === '')) {
+      toast.error('IMEI du vendeur requis pour chaque article'); return;
+    }
     setLoading(true);
     try {
       await updateInvoice(invoiceId, {
@@ -168,6 +175,8 @@ export default function EditInvoice() {
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           discount: item.discount,
+          imeiVendeur: item.imeiVendeur,
+          imeiAcheteur: item.imeiAcheteur || null,
         })),
       });
       toast.success('Facture modifiée');
@@ -295,6 +304,29 @@ export default function EditInvoice() {
                   {items.length > 1 && (
                     <button type="button" onClick={() => removeItem(index)} className="ml-2 w-9 h-9 flex items-center justify-center text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">✕</button>
                   )}
+                </div>
+                {/* IMEI fields - full width below */}
+                <div className="sm:col-span-12 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">IMEI Vendeur *</label>
+                    <input
+                      type="text"
+                      placeholder="IMEI vendeur *"
+                      value={item.imeiVendeur}
+                      onChange={(e) => updateItem(index, 'imeiVendeur', e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">IMEI Acheteur</label>
+                    <input
+                      type="text"
+                      placeholder="IMEI acheteur (optionnel)"
+                      value={item.imeiAcheteur}
+                      onChange={(e) => updateItem(index, 'imeiAcheteur', e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                    />
+                  </div>
                 </div>
               </div>
             ))}
