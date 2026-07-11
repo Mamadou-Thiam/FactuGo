@@ -9,7 +9,7 @@ const SHOP = {
   address: 'Colobane / Fadia',
 };
 
-const LOGO_PATH = path.join(__dirname, '..', 'logo.png');
+const LOGO_PATH = path.join(__dirname, '..', '..', 'logo.png');
 
 const WARRANTY_TEXT = [
   { title: true, text: 'CONDITIONS DE GARANTIE' },
