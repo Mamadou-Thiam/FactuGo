@@ -45,6 +45,8 @@ export const getInvoices = () => api.get('/invoices');
 export const getInvoice = (id: number) => api.get(`/invoices/${id}`);
 export const getNextInvoiceNumber = () => api.get('/invoices/next-number');
 export const createInvoice = (data: any) => api.post('/invoices', data);
+export const updateInvoice = (id: number, data: any) => api.put(`/invoices/${id}`, data);
+export const deleteInvoice = (id: number) => api.delete(`/invoices/${id}`);
 
 // Dashboard
 export const getDashboard = () => api.get('/dashboard');

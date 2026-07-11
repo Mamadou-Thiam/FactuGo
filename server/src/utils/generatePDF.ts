@@ -67,7 +67,7 @@ const RED = '#dc2626';
 const ORANGE = '#ea580c';
 
 function formatNumber(n: number): string {
-  return n.toLocaleString('fr-FR');
+  return Math.round(n).toLocaleString('fr-FR').replace(/\s/g, '.');
 }
 
 function drawRoundedRect(doc: PDFKit.PDFDocument, x: number, y: number, w: number, h: number, r: number, fill: string) {

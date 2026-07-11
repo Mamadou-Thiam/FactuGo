@@ -20,7 +20,7 @@ interface DashboardData {
   }[];
 }
 
-const formatCFA = (n: number) => n.toLocaleString('fr-FR') + ' FCFA';
+const formatCFA = (n: number) => Math.round(n).toLocaleString('fr-FR').replace(/\s/g, '.') + ' FCFA';
 
 const statusColors: Record<string, string> = {
   PAYE: 'bg-green-100 text-green-800',

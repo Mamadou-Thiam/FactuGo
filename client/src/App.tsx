@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
 import Invoices from './pages/Invoices';
 import CreateInvoice from './pages/CreateInvoice';
+import EditInvoice from './pages/EditInvoice';
 import Layout from './components/Layout';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -32,6 +33,7 @@ function AppRoutes() {
         <Route path="clients" element={<Clients />} />
         <Route path="factures" element={<Invoices />} />
         <Route path="factures/nouvelle" element={<CreateInvoice />} />
+        <Route path="factures/modifier/:id" element={<EditInvoice />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

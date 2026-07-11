@@ -162,7 +162,7 @@ export default function CreateInvoice() {
   };
 
   if (createdInvoice) {
-    const formatCFA = (n: number) => n.toLocaleString('fr-FR') + ' FCFA';
+    const formatCFA = (n: number) => Math.round(n).toLocaleString('fr-FR').replace(/\s/g, '.') + ' FCFA';
     const whatsappUrl = (() => {
       const cleanPhone = createdInvoice.clientPhone.replace(/[^0-9]/g, '');
       const message = encodeURIComponent(
@@ -434,7 +434,7 @@ export default function CreateInvoice() {
                   <div className="flex-1 sm:flex-none">
                     {index === 0 && <label className="block text-xs text-gray-500 mb-1 sm:hidden">Total ligne</label>}
                     <div className="px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 text-right sm:text-center">
-                      {calculateLineTotal(item).toLocaleString('fr-FR')} F
+                      {calculateLineTotal(item).toLocaleString('fr-FR').replace(/\s/g, '.')} F
                     </div>
                   </div>
                   {items.length > 1 && (
@@ -499,26 +499,26 @@ export default function CreateInvoice() {
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Sous-total</span>
-                <span className="font-medium">{subtotal.toLocaleString('fr-FR')} FCFA</span>
+                <span className="font-medium">{subtotal.toLocaleString('fr-FR').replace(/\s/g, '.')} FCFA</span>
               </div>
               {totalDiscount > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Remise</span>
-                  <span className="font-medium text-red-600">-{totalDiscount.toLocaleString('fr-FR')} FCFA</span>
+                  <span className="font-medium text-red-600">-{totalDiscount.toLocaleString('fr-FR').replace(/\s/g, '.')} FCFA</span>
                 </div>
               )}
               <div className="border-t pt-3 flex justify-between">
                 <span className="text-lg font-bold text-gray-800">Total</span>
-                <span className="text-lg font-bold text-gray-800">{total.toLocaleString('fr-FR')} FCFA</span>
+                <span className="text-lg font-bold text-gray-800">{total.toLocaleString('fr-FR').replace(/\s/g, '.')} FCFA</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Payé</span>
-                <span className="font-semibold text-green-600">{amountPaid.toLocaleString('fr-FR')} FCFA</span>
+                <span className="font-semibold text-green-600">{amountPaid.toLocaleString('fr-FR').replace(/\s/g, '.')} FCFA</span>
               </div>
               {reste > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Reste à payer</span>
-                  <span className="font-semibold text-red-600">{reste.toLocaleString('fr-FR')} FCFA</span>
+                  <span className="font-semibold text-red-600">{reste.toLocaleString('fr-FR').replace(/\s/g, '.')} FCFA</span>
                 </div>
               )}
             </div>

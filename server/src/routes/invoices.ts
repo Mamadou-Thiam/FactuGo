@@ -196,4 +196,92 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
+router.put('/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'ID invalide' });
+      return;
+    }
+
+    const { clientId, date, dueDate, paymentMethod, status, amountPaid, items } = req.body;
+
+    if (!items || items.length === 0) {
+      res.status(400).json({ error: 'Articles requis' });
+      return;
+    }
+
+    // Delete old items and recreate
+    await prisma.invoiceItem.deleteMany({ where: { invoiceId: id } });
+
+    const invoice = await prisma.invoice.update({
+      where: { id },
+      data: {
+        clientId: clientId ? parseInt(clientId) : undefined,
+        date: date ? new Date(date) : undefined,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        paymentMethod,
+        status,
+        amountPaid: parseFloat(amountPaid) || 0,
+        items: {
+          create: items.map((item: any) => ({
+            designation: item.designation,
+            quantity: parseInt(item.quantity),
+            unitPrice: parseFloat(item.unitPrice),
+            discount: parseFloat(item.discount) || 0,
+          })),
+        },
+      },
+      include: { client: true, items: true },
+    });
+
+    const total = invoice.items.reduce((acc, item) => {
+      return acc + calculateItemTotal(Number(item.unitPrice), item.quantity, Number(item.discount));
+    }, 0);
+
+    res.json({
+      id: invoice.id,
+      number: invoice.number,
+      clientId: invoice.clientId,
+      clientName: invoice.client.name,
+      clientPhone: invoice.client.phone,
+      clientAddress: invoice.client.address,
+      date: invoice.date,
+      dueDate: invoice.dueDate,
+      paymentMethod: invoice.paymentMethod,
+      status: invoice.status,
+      amountPaid: Number(invoice.amountPaid),
+      total,
+      items: invoice.items.map((item) => ({
+        id: item.id,
+        designation: item.designation,
+        quantity: item.quantity,
+        unitPrice: Number(item.unitPrice),
+        discount: Number(item.discount),
+        lineTotal: calculateItemTotal(Number(item.unitPrice), item.quantity, Number(item.discount)),
+      })),
+    });
+  } catch (error) {
+    console.error('Update invoice error:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+router.delete('/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'ID invalide' });
+      return;
+    }
+
+    await prisma.invoiceItem.deleteMany({ where: { invoiceId: id } });
+    await prisma.invoice.delete({ where: { id } });
+    res.json({ message: 'Facture supprimée' });
+  } catch (error) {
+    console.error('Delete invoice error:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 export default router;
