@@ -36,6 +36,33 @@ interface CreatedInvoice {
 
 const emptyItem: InvoiceItem = { designation: '', quantity: 1, unitPrice: 0, discount: 0 };
 
+const IPHONE_MODELS = [
+  'iPhone 16 Pro Max',
+  'iPhone 16 Pro',
+  'iPhone 16 Plus',
+  'iPhone 16',
+  'iPhone 15 Pro Max',
+  'iPhone 15 Pro',
+  'iPhone 15 Plus',
+  'iPhone 15',
+  'iPhone 14 Pro Max',
+  'iPhone 14 Pro',
+  'iPhone 14 Plus',
+  'iPhone 14',
+  'iPhone SE (3ème génération)',
+  'iPhone 13 Pro Max',
+  'iPhone 13 Pro',
+  'iPhone 13',
+  'iPhone 13 mini',
+  'iPhone 12 Pro Max',
+  'iPhone 12 Pro',
+  'iPhone 12',
+  'iPhone 12 mini',
+  'iPhone SE (2ème génération)',
+  'Accessoire',
+  'Autre',
+];
+
 export default function CreateInvoice() {
   const navigate = useNavigate();
   const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -50,6 +77,7 @@ export default function CreateInvoice() {
   const [amountPaid, setAmountPaid] = useState(0);
   const [loading, setLoading] = useState(false);
   const [createdInvoice, setCreatedInvoice] = useState<CreatedInvoice | null>(null);
+  const [customDesignations, setCustomDesignations] = useState<Record<number, string>>({});
 
   useEffect(() => {
     getNextInvoiceNumber()
@@ -395,16 +423,36 @@ export default function CreateInvoice() {
             {items.map((item, index) => (
               <div key={index} className="bg-gray-50 rounded-lg p-3 sm:p-4 space-y-2 sm:space-y-0 sm:grid sm:grid-cols-12 sm:gap-3 sm:items-end">
                 {/* Mobile: stacked fields */}
-                <div className="sm:col-span-5">
-                  {index === 0 && <label className="block text-xs text-gray-500 mb-1 sm:hidden">Désignation</label>}
-                  {index === 0 && <label className="hidden sm:block text-xs text-gray-500 mb-1">Désignation</label>}
-                  <input
-                    type="text"
-                    placeholder="Désignation"
-                    value={item.designation}
-                    onChange={(e) => updateItem(index, 'designation', e.target.value)}
+                <div className="sm:col-span-5 space-y-1">
+                  {index === 0 && <label className="block text-xs text-gray-500">Désignation</label>}
+                  <select
+                    value={IPHONE_MODELS.includes(item.designation) || item.designation === '' ? item.designation : 'Autre'}
+                    onChange={(e) => {
+                      if (e.target.value === 'Autre') {
+                        updateItem(index, 'designation', customDesignations[index] || '');
+                      } else {
+                        updateItem(index, 'designation', e.target.value);
+                      }
+                    }}
                     className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
-                  />
+                  >
+                    <option value="">-- Sélectionner --</option>
+                    {IPHONE_MODELS.map((model) => (
+                      <option key={model} value={model}>{model}</option>
+                    ))}
+                  </select>
+                  {(item.designation !== '' && !IPHONE_MODELS.includes(item.designation)) && (
+                    <input
+                      type="text"
+                      placeholder="Saisir la désignation"
+                      value={customDesignations[index] ?? item.designation}
+                      onChange={(e) => {
+                        setCustomDesignations({ ...customDesignations, [index]: e.target.value });
+                        updateItem(index, 'designation', e.target.value);
+                      }}
+                      className="w-full px-3 py-2.5 border border-orange-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                    />
+                  )}
                 </div>
                 <div className="grid grid-cols-3 gap-2 sm:col-span-5">
                   <div>
