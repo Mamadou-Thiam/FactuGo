@@ -71,4 +71,13 @@ export async function downloadPdf(invoiceId: number, fileName: string): Promise<
   a.remove();
 }
 
+export async function getInvoicePdfBlob(invoiceId: number): Promise<Blob> {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${API_URL}/pdf/${invoiceId}/pdf`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Erreur lors du téléchargement');
+  return res.blob();
+}
+
 export default api;

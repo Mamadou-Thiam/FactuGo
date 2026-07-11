@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getInvoices, downloadPdf, deleteInvoice } from '../services/api';
+import { getInvoices, downloadPdf, deleteInvoice, getInvoicePdfBlob } from '../services/api';
 import toast from 'react-hot-toast';
 
 interface Invoice {
@@ -36,9 +36,8 @@ const paymentLabels: Record<string, string> = {
   CARTE_BANCAIRE: 'Carte Bancaire',
 };
 
-function getWhatsAppUrl(phone: string, invoice: Invoice): string {
-  const cleanPhone = phone.replace(/[^0-9]/g, '');
-  const message = encodeURIComponent(
+function getWhatsAppText(phone: string, invoice: Invoice): string {
+  return (
     `Bonjour ${invoice.clientName},\n\n` +
     `Merci pour votre achat chez Seck Ndanane Apple.\n\n` +
     `Votre facture ${invoice.number} est prête.\n\n` +
@@ -49,7 +48,27 @@ function getWhatsAppUrl(phone: string, invoice: Invoice): string {
     `📍 Colobane / Fadia\n` +
     `📞 78 107 72 69`
   );
-  return `https://wa.me/221${cleanPhone}?text=${message}`;
+}
+
+async function sharePdfWhatsApp(invoiceId: number, invoiceNumber: string, phone: string, invoice: Invoice) {
+  try {
+    const blob = await getInvoicePdfBlob(invoiceId);
+    const file = new File([blob], `${invoiceNumber}.pdf`, { type: 'application/pdf' });
+
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], text: getWhatsAppText(phone, invoice) });
+      return;
+    }
+
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const msg = encodeURIComponent(getWhatsAppText(phone, invoice));
+    window.open(`https://wa.me/221${cleanPhone}?text=${msg}`, '_blank');
+    toast.success('PDF téléchargé — joignez-le manuellement au message');
+  } catch {
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const msg = encodeURIComponent(getWhatsAppText(phone, invoice));
+    window.open(`https://wa.me/221${cleanPhone}?text=${msg}`, '_blank');
+  }
 }
 
 export default function Invoices() {
@@ -146,14 +165,12 @@ export default function Invoices() {
                               PDF
                             </button>
                             {inv.clientPhone && (
-                              <a
-                                href={getWhatsAppUrl(inv.clientPhone, inv)}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                              <button
+                                onClick={() => sharePdfWhatsApp(inv.id, inv.number, inv.clientPhone, inv)}
                                 className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold hover:bg-green-200 transition-colors"
                               >
                                 WhatsApp
-                              </a>
+                              </button>
                             )}
                             <button
                               onClick={() => handleDelete(inv.id, inv.number)}
@@ -223,14 +240,12 @@ export default function Invoices() {
                       📄 PDF
                     </button>
                     {inv.clientPhone && (
-                      <a
-                        href={getWhatsAppUrl(inv.clientPhone, inv)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => sharePdfWhatsApp(inv.id, inv.number, inv.clientPhone, inv)}
                         className="py-2 bg-green-100 text-green-700 rounded-lg text-xs font-semibold hover:bg-green-200 transition-colors text-center"
                       >
                         💬 WhatsApp
-                      </a>
+                      </button>
                     )}
                     <button
                       onClick={() => handleDelete(inv.id, inv.number)}
