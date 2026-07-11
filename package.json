@@ -7,7 +7,7 @@
     "client": "cd client && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "install:all": "cd server && npm install && cd ../client && npm install",
-    "build": "cd client && npm run build && cd ../server && npx prisma generate",
+    "build": "cd client && npm run build && cd ../server && npx prisma generate && npx tsc",
     "start": "cd server && npx prisma db push --skip-generate && node dist/index.js"
   }
 }
